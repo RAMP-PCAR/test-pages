@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Test</title>
+
+    <link rel="stylesheet" href="http://js.arcgis.com/3.12/esri/css/esri.css">
+
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="http://js.arcgis.com/3.12/"></script>
+    <script src="terraformer.min.js"></script>
+    <script src="terraformer-arcgis-parser.min.js"></script>
+    <script>
+        var map, gjl;
+
+        require( ['esri/map',"esri/layers/ArcGISDynamicMapServiceLayer",'geojsonlayer.js'], 
+            function( Map, ArcGISTiledMapServiceLayer, GeoJsonLayer ) {
+                var baseLayer = new ArcGISTiledMapServiceLayer("http://geoappext.nrcan.gc.ca/arcgis/rest/services/BaseMaps/CBMT3978/MapServer", {
+                    id: "basemapLayer"
+                });
+                //map = new Map("map", { logo: false, basemap: "gray" } );
+                map = new Map("map", { logo: false } );
+                gjl = new GeoJsonLayer( {url: 'canada.json'} );
+                map.addLayer( baseLayer,gjl );
+                //gjl.spatialReference.wkid = 3978;
+                //map.addLayer( gjl );
+            }
+        );
+              
+    </script>
+</body>
+</html>
