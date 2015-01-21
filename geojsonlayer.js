@@ -2,6 +2,7 @@ define([
     "dojo/_base/declare",
     "esri/graphic",
     "esri/layers/GraphicsLayer",
+    "esri/layers/FeatureLayer",
     "esri/InfoTemplate",
     "esri/graphicsUtils",
     "esri/Color",
@@ -15,7 +16,7 @@ define([
     "esri/config",
     "dojo/_base/url",
     "dojo/_base/lang"
-],  function (declare, Graphic, GraphicsLayer, InfoTemplate, graphicsUtils, Color, SimpleMarkerSymbol,
+],  function (declare, Graphic, GraphicsLayer, FeatureLayer, InfoTemplate, graphicsUtils, Color, SimpleMarkerSymbol,
         SimpleLineSymbol, SimpleFillSymbol, SimpleRenderer, SpatialReference, webMercatorUtils, esriRequest, esriConfig, Url, lang
     ) {
     return declare([GraphicsLayer], {

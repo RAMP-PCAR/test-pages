@@ -24,8 +24,30 @@
 
       
 
-        require(['esri/map', "esri/layers/ArcGISDynamicMapServiceLayer", 'geojsonlayer.js', "esri/geometry/Extent", ],
-            function (Map, ArcGISTiledMapServiceLayer, GeoJsonLayer, Extent) {
+        require(['esri/map',
+                 "esri/layers/ArcGISDynamicMapServiceLayer",
+                 'geojsonlayer.js',
+                 "esri/geometry/Extent",
+                 "esri/tasks/FeatureSet",
+                 "esri/layers/FeatureLayer",
+                "esri/Color",
+                "esri/symbols/SimpleMarkerSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/renderers/SimpleRenderer",
+                "esri/request" ],
+            function (Map,
+                      ArcGISTiledMapServiceLayer,
+                      GeoJsonLayer,
+                      Extent,
+                      FeatureSet,
+                      FeatureLayer,
+                      Color,
+                      SimpleMarkerSymbol,
+                      SimpleLineSymbol,
+                      SimpleFillSymbol,
+                      SimpleRenderer,
+                      esriRequest) {
 
                 var mode, tile, bounds;
 
@@ -57,7 +79,7 @@
                         break;
                 }
 
-              
+
                 var baseLayer = new ArcGISTiledMapServiceLayer(tile, {
                     id: "basemapLayer"
                 });
@@ -68,14 +90,70 @@
                     logo: false,
                     extent: bounds
                 });
-                gjl = new GeoJsonLayer({ url: 'canada.json' });
+                //gjl = new GeoJsonLayer({ url: 'canada.json' });
                 map.addLayer(baseLayer);
-                //gjl.spatialReference.wkid = 3978;
-                map.addLayer(gjl);
+
+                //BEGIN THE HONGIFICATION
+                var requestHandle = esriRequest({
+                    url: 'canada.json',
+                    handleAs: "json"
+                });
+                requestHandle.then(function (geojson) {
+
+                    var json = new Terraformer.Primitive(geojson);
+                    // Convert to ArcGIS JSON
+                    var arcgisJson = Terraformer.ArcGIS.convert(json);
+
+                    var hongJson = {
+                        "geometryType": "esriGeometryPolygon",
+                        "features": arcgisJson
+                    };
+
+                    var fs = new FeatureSet(hongJson);
+                    var featuresList = fs.features;
+
+                    var layerDefinition = {
+                        "displayFieldName": "name",
+                        "geometryType": "esriGeometryPolygon",
+                        "spatialReference": {
+                            "wkid": 4326
+                        },
+                        "fieldAliases": { "name": "name" },
+                        "fields": [
+                                {
+                                    "name": "name",
+                                    "type": "esriFieldTypeString",
+                                    "length":  50    
+                                }
+                        ]
+                    };
+
+                    var featureCollection = {
+                        layerDefinition: layerDefinition,
+                        featureSet: fs
+                    };
+
+                    var fL = new FeatureLayer(featureCollection);
+
+                    var fill = new SimpleFillSymbol("solid",
+                       new SimpleLineSymbol("solid", new Color([250, 50, 50, 0.15]), 1),
+                       new Color([255, 0, 0, 0.1]));
+
+                    var renderer = new SimpleRenderer(fill);
+                    fL.setRenderer(renderer);
+
+                    map.addLayer(fL);
+                    gjl = fL;
+
+                });
+
+            }
+
+                //map.addLayer(gjl);
 
                 //baseLayer.setVisibility(false);
 
-            }
+            
         );
 
         function checkState() {
