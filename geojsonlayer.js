@@ -14,9 +14,13 @@ define([
     "esri/request",
     "esri/config",
     "dojo/_base/url",
-    "dojo/_base/lang"
+    "dojo/_base/lang",
+    "esri/tasks/GeometryService",
+    "esri/tasks/ProjectParameters",
+    "esri/geometry/Polygon"
 ],  function (declare, Graphic, GraphicsLayer, InfoTemplate, graphicsUtils, Color, SimpleMarkerSymbol,
-        SimpleLineSymbol, SimpleFillSymbol, SimpleRenderer, SpatialReference, webMercatorUtils, esriRequest, esriConfig, Url, lang
+        SimpleLineSymbol, SimpleFillSymbol, SimpleRenderer, SpatialReference, webMercatorUtils, esriRequest, esriConfig, Url, lang,
+        GeometryService, ProjectParameters, Polygon
     ) {
     return declare([GraphicsLayer], {
 
@@ -92,6 +96,7 @@ define([
         _setCorsSevers: function () {
             // Allow browser to make cross-domain requests
             esriConfig.defaults.io.corsEnabledServers.push("http://sampleserver6.arcgisonline.com");
+            esriConfig.defaults.io.corsEnabledServers.push("http://sncr01wbingsdv1.ncr.int.ec.gc.ca");
             // Add server
             if (this._url) {
                 var url = new Url(this._url),
@@ -184,8 +189,31 @@ define([
             }
             // Convert GeoJSON to ArcGIS JSON
             var arcgisJson = this._terraformerConverter(geojson);
+
+            //project to our basemap
+            var geomSrv, geomParams, that=this, geometries = [];
+            geomSrv = new GeometryService("http://sncr01wbingsdv1.ncr.int.ec.gc.ca/arcgis/rest/services/Utilities/Geometry/GeometryServer");
+            geomParams = new ProjectParameters();            
+            geomParams.outSR = new SpatialReference({ wkid: 3978 }); //if this works, parameterize
+
+            for (var i = 0; i < arcgisJson.length; i++) {
+                geometries.push(new Polygon(arcgisJson[i].geometry)); //TODO handle other geometry types if this works
+            }
+
+            geomParams.geometries = geometries;
+
+            geomSrv.project(geomParams, function (projectedGeometry) {
+                //after service returns, continue to next step
+
+                //push geoms back into orig collection to preserve any attributes
+                for (var i = 0; i < arcgisJson.length; i++) {                    
+                    arcgisJson[i].geometry = projectedGeometry[i];
+                }
+                that._addGraphics(arcgisJson);
+            });
+
             // Add graphics to layer
-            this._addGraphics(arcgisJson);
+           // this._addGraphics(arcgisJson);
         },
 
         // GeoJSON to ArcGIS JSON
