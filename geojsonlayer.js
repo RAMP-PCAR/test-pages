@@ -39,7 +39,7 @@ define([
             // GeoJSON spatial reference (not optional)
             this._inSpatialReference = new SpatialReference({wkid: 4326});  // Data must be in Geographic Coordinates
             // GeoJSON transformation (optional)
-            this._outSpatialReference = null;
+            this._outSpatialReference = null; // new SpatialReference({ wkid: 3978 });
             // Default popup
             this.setInfoTemplate(options.infoTemplate || new InfoTemplate("GeoJSON Data", "${*}"));
             // Default symbols
@@ -77,8 +77,8 @@ define([
                     getRandomColor("blue", 0.75));
             this._simpleLineSym = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, getRandomColor("red", 0.9), 2);
             this._simplePolygonSym = new SimpleFillSymbol("solid",
-                    new SimpleLineSymbol("solid", new Color([50, 50, 50, 0.15]), 1),
-                    getRandomColor("green", 0.15));
+                    new SimpleLineSymbol("solid", new Color([250, 50, 50, 0.15]), 1),
+                    getRandomColor("red", 0.55));
             // Option to hardcod colors here
             // this._simplePointSym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 8,
             //      new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([150, 150, 150]), 0.5),

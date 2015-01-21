@@ -29,8 +29,8 @@
 
                 var mode, tile, bounds;
 
-                mode = "esri";
-                //mode = "nrcan";
+                //mode = "esri";
+                mode = "nrcan";
 
                 switch (mode) {
                     case "esri":
@@ -72,8 +72,26 @@
                 map.addLayer(baseLayer);
                 //gjl.spatialReference.wkid = 3978;
                 map.addLayer(gjl);
+
+                //baseLayer.setVisibility(false);
+
             }
         );
+
+        function checkState() {
+            console.log('graphic count ' + gjl.graphics.length.toString());
+            console.log('Layer Spatial Ref');
+            console.log(gjl.spatialReference);
+            console.log('Shape');
+            console.log(gjl.graphics[0]);
+        }
+
+        function zoomShape() {
+            
+            var extent = gjl.graphics[0]._extent.expand(1.5);
+            extent.spatialReference = map.spatialReference;
+            map.setExtent(extent);
+        }
 
     </script>
 
@@ -82,8 +100,11 @@
 </head>
 
 <body>
+    <button type="button" onclick="checkState()">Tell Me Things</button>
+    <button type="button" onclick="zoomShape()">Zoomjection</button>
     <div id="map"></div>
 
     
 </body>
 </html>
+
