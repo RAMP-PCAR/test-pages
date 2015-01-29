@@ -1,0 +1,7 @@
+{
+  "name": "n/a",
+  "dependencies"  : {
+    "terraformer-proj4js": "https://github.com/RAMP-PCAR/terraformer-proj4js.git#master",
+    "terraformer-arcgis-parser": "~1.0.4"
+  }
+}

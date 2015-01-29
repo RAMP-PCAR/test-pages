@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Test</title>
+
+    <link rel="stylesheet" href="http://js.arcgis.com/3.12/esri/css/esri.css">
+    <style>
+    html, body, #map { height: 100%; width 100%; }
+    </style>
+
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="lib/proj4js/dist/proj4.js"></script>
+    <script src="lib/terraformer/terraformer.min.js"></script>
+    <script src="lib/terraformer-arcgis-parser/terraformer-arcgis-parser.min.js"></script>
+    <script src="lib/terraformer-proj4js/src/terraformer-proj4js.js"></script>
+    <script src="http://js.arcgis.com/3.10/"></script>
+    <script>
+        proj4.defs("EPSG:3978","+proj=lcc +lat_1=49 +lat_2=77 +lat_0=49 +lon_0=-95 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+        var map, gjl;
+
+        var pts = [ [-75,50],[-80,51],[-85,52],[-90,53],[-95,54],[-100,55] ];
+
+        var sampleJson = {
+          "type": "FeatureCollection",
+          "features": pts.map( function(val,idx) {
+            return {
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": val
+              },
+              "properties": {
+                "OBJECTID": idx
+              },
+              id: idx
+            };
+          })
+        };
+
+        console.log( sampleJson );
+
+        require( ['esri/map',"esri/layers/ArcGISDynamicMapServiceLayer","esri/layers/FeatureLayer","esri/geometry/Extent"], 
+            function( Map, ArcGISTiledMapServiceLayer, FeatureLayer, Extent) {
+                var baseLayer = new ArcGISTiledMapServiceLayer("http://geoappext.nrcan.gc.ca/arcgis/rest/services/BaseMaps/CBMT3978/MapServer", {
+                    id: "basemapLayer"
+                });
+                map = new Map("map", { logo: false, extent: new Extent({xmin:-3000000,ymin:-1000000,xmax:3000000,ymax:3000000,spatialReference:{wkid:3978}}) } );
+                map.addLayer( baseLayer );
+
+                setTimeout( function() {
+                  var layerDef = {
+                      geometryType: "esriGeometryPoint",
+                      fields: [{name:"OBJECTID",alias:"OBJECTID",type:"esriFieldTypeOID"}],
+                      objectIdField: "OBJECTID",
+                      drawingInfo: {
+                        renderer: {
+                          type: "simple",
+                          symbol: {
+                            type: "esriSMS",
+                            style: "esriSMSCircle",
+                            color: [ 67, 100, 255, 70 ],
+                            size: 7
+                          }
+                        }
+                      },
+                    },
+                    fs = { geometryType: "esriGeometryPoint" },
+                    esriJson, fl;
+                  Terraformer.Proj.convert( sampleJson, 'EPSG:3978' );
+                  esriJson = Terraformer.ArcGIS.convert( sampleJson );
+                  console.log( esriJson );
+                  fs.features = esriJson;
+                  fl = new FeatureLayer( { layerDefinition: layerDef, featureSet: fs } );
+                  console.log( fl );
+                  console.log( map.spatialReference.wkid );
+
+
+                }, 2000);
+            }
+        );
+              
+    </script>
+</body>
+</html>
