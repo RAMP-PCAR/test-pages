@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -46,8 +46,8 @@
 
         console.log( sampleJson );
 
-        require( ['esri/map',"esri/layers/ArcGISDynamicMapServiceLayer","esri/layers/FeatureLayer","esri/geometry/Extent"], 
-            function( Map, ArcGISTiledMapServiceLayer, FeatureLayer, Extent) {
+        require( ['esri/map',"esri/layers/ArcGISDynamicMapServiceLayer","esri/layers/FeatureLayer","esri/geometry/Extent","esri/SpatialReference"], 
+            function (Map, ArcGISTiledMapServiceLayer, FeatureLayer, Extent, SpatialReference) {
                 var baseLayer = new ArcGISTiledMapServiceLayer("http://geoappext.nrcan.gc.ca/arcgis/rest/services/BaseMaps/CBMT3978/MapServer", {
                     id: "basemapLayer"
                 });
@@ -59,6 +59,9 @@
                       geometryType: "esriGeometryPoint",
                       fields: [{name:"OBJECTID",alias:"OBJECTID",type:"esriFieldTypeOID"}],
                       objectIdField: "OBJECTID",
+                      spatialReference: {
+                          wkid: 3978
+                      },
                       drawingInfo: {
                         renderer: {
                           type: "simple",
@@ -77,10 +80,16 @@
                   esriJson = Terraformer.ArcGIS.convert( sampleJson );
                   console.log( esriJson );
                   fs.features = esriJson;
-                  fl = new FeatureLayer( { layerDefinition: layerDef, featureSet: fs } );
+                  fl = new FeatureLayer({ layerDefinition: layerDef, featureSet: fs });
+
+                  //mash in the correct SR with my boot
+                  fl.spatialReference = new SpatialReference({ wkid: 3978 });
+
                   console.log( fl );
                   console.log( map.spatialReference.wkid );
 
+
+                  map.addLayer(fl);
 
                 }, 2000);
             }
