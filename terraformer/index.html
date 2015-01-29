@@ -1,17 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=yes">
     <title>Test</title>
 
     <link rel="stylesheet" href="http://js.arcgis.com/3.12/esri/css/esri.css">
-
-</head>
-
-<body>
-    <div id="map"></div>
+    <style>
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 
     <script src="http://js.arcgis.com/3.12/"></script>
     <script src="terraformer.min.js"></script>
@@ -19,20 +22,89 @@
     <script>
         var map, gjl;
 
-        require( ['esri/map',"esri/layers/ArcGISDynamicMapServiceLayer",'geojsonlayer.js'], 
-            function( Map, ArcGISTiledMapServiceLayer, GeoJsonLayer ) {
-                var baseLayer = new ArcGISTiledMapServiceLayer("http://geoappext.nrcan.gc.ca/arcgis/rest/services/BaseMaps/CBMT3978/MapServer", {
+      
+
+        require(['esri/map', "esri/layers/ArcGISDynamicMapServiceLayer", 'geojsonlayer.js', "esri/geometry/Extent", ],
+            function (Map, ArcGISTiledMapServiceLayer, GeoJsonLayer, Extent) {
+
+                var mode, tile, bounds;
+
+                //mode = "esri";
+                mode = "nrcan";
+
+                switch (mode) {
+                    case "esri":
+                        tile = "http://services.arcgisonline.com/arcgis/rest/services/World_Shaded_Relief/MapServer";
+
+                        bounds = new Extent({
+                            "xmin": -14503036,
+                            "ymin": 8607219,
+                            "xmax": -10450934,
+                            "ymax": 9293814,
+                            "spatialReference": { "wkid": 3857 }
+                        });
+
+                        break;
+                    case "nrcan":
+                        tile = "http://geoappext.nrcan.gc.ca/arcgis/rest/services/BaseMaps/CBMT3978/MapServer";
+                        bounds = new Extent({
+                            "xmin": -2927995,
+                            "ymin": -841402,
+                            "xmax": 2675891,
+                            "ymax": 2992469,
+                            "spatialReference": { "wkid": 3978 }
+                        });
+                        break;
+                }
+
+              
+                var baseLayer = new ArcGISTiledMapServiceLayer(tile, {
                     id: "basemapLayer"
                 });
+
+
                 //map = new Map("map", { logo: false, basemap: "gray" } );
-                map = new Map("map", { logo: false } );
-                gjl = new GeoJsonLayer( {url: 'canada.json'} );
-                map.addLayer( baseLayer,gjl );
+                map = new Map("map", {
+                    logo: false,
+                    extent: bounds
+                });
+                gjl = new GeoJsonLayer({ url: 'canada.json' });
+                map.addLayer(baseLayer);
                 //gjl.spatialReference.wkid = 3978;
-                //map.addLayer( gjl );
+                map.addLayer(gjl);
+
+                //baseLayer.setVisibility(false);
+
             }
         );
-              
+
+        function checkState() {
+            console.log('graphic count ' + gjl.graphics.length.toString());
+            console.log('Layer Spatial Ref');
+            console.log(gjl.spatialReference);
+            console.log('Shape');
+            console.log(gjl.graphics[0]);
+        }
+
+        function zoomShape() {
+            
+            var extent = gjl.graphics[0]._extent.expand(1.5);
+            extent.spatialReference = map.spatialReference;
+            map.setExtent(extent);
+        }
+
     </script>
+
+
+
+</head>
+
+<body>
+    <button type="button" onclick="checkState()">Tell Me Things</button>
+    <button type="button" onclick="zoomShape()">Zoomjection</button>
+    <div id="map"></div>
+
+    
 </body>
 </html>
+
