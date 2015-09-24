@@ -1,0 +1,27 @@
+{
+  "name": "angular-es6",
+  "version": "0.0.0",
+  "description": "es6 test page",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RAMP-PCAR/test-pages.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RAMP-PCAR/test-pages/issues"
+  },
+  "homepage": "https://github.com/RAMP-PCAR/test-pages",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-connect": "^2.2.0",
+    "gulp-ng-annotate": "^1.1.0",
+    "gulp-sourcemaps": "^1.5.2"
+  }
+}
