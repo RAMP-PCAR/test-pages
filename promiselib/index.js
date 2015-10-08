@@ -1,7 +1,7 @@
 var dep1 = require('./deps/dep1.js');
 var dep2 = require('./deps/dep2.js');
-var request = require('request');
-var Promise = require('bluebird');
+var http = require('http');
+var Promise = require('promise');
 
 function initAll(stuffToInject) {
     return {
@@ -11,14 +11,13 @@ function initAll(stuffToInject) {
 
 }
 
-module.exports = function () { 
+module.exports = function () {
     return (new Promise(function (resolve, reject) {
-        request('http://whatthecommit.com/index.txt', function (err, resp, body) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(body.replace('\n',''));
-            }
-        });
+        http.get('http://crossorigin.me/http://whatthecommit.com/index.txt', function (resp) {
+            var body = '';
+            resp.on('data', function(chunk) { body += chunk; });
+            resp.on('end', function() { resolve(body.replace('\n','')) });
+        })
+        .on('error', function (e) { reject(e); });
     })).then(initAll);
 };
